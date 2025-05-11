@@ -1,11 +1,14 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { MapPin, Clock, Phone, ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function HeroSection() {
   const [scrolled, setScrolled] = useState(false)
+  const [showSubscribe, setShowSubscribe] = useState(false)
+  const [email, setEmail] = useState("")
+  const [subscribeMsg, setSubscribeMsg] = useState("")
 
   // Parallax scroll effect
   useEffect(() => {
@@ -18,6 +21,17 @@ export default function HeroSection() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Función para manejar la suscripción
+  function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault()
+    setSubscribeMsg("¡Gracias por suscribirte!")
+    setTimeout(() => {
+      setShowSubscribe(false)
+      setSubscribeMsg("")
+      setEmail("")
+    }, 2000)
+  }
+
   return (
     <section className="relative overflow-hidden py-20 text-white lg:py-28">
       {/* Background image with parallax effect */}
@@ -26,7 +40,7 @@ export default function HeroSection() {
         style={{ transform: `translateY(${scrolled ? "5%" : "0"})` }}
       >
         <img
-          src="/images/super-dragon.png"
+          src="/images/super.png"
           alt="Dragón chino tradicional"
           className="h-full w-full object-cover"
           loading="eager"
@@ -42,34 +56,11 @@ export default function HeroSection() {
           className="mx-auto max-w-3xl text-center"
         >
           <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
-            <span className="text-yellow-400">Supermercado</span> Kin
+            <span className="text-yellow-400">Supermercado</span> Universo
           </h1>
           <p className="mb-8 text-lg text-gray-100 md:text-xl">
-            Descubra auténticos productos asiáticos de calidad para su experiencia culinaria gourmet
+            Encontrá las mejores Ofertas en Beccar
           </p>
-
-          {/* Address and contact information */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="mb-8 flex flex-col items-center justify-center gap-4 rounded-lg bg-black/30 backdrop-blur-sm p-4 text-white sm:flex-row"
-          >
-            <div className="flex items-center">
-              <MapPin className="mr-2 h-5 w-5 text-yellow-400" />
-              <span className="font-medium">Av Sucre 2865 Beccar-cp1643</span>
-            </div>
-            <div className="hidden h-6 border-l border-white/30 sm:block"></div>
-            <div className="flex items-center">
-              <Clock className="mr-2 h-5 w-5 text-yellow-400" />
-              <span>Lun-Sáb: 9:00-20:00</span>
-            </div>
-            <div className="hidden h-6 border-l border-white/30 sm:block"></div>
-            <div className="flex items-center">
-              <Phone className="mr-2 h-5 w-5 text-yellow-400" />
-              <span>+54 11 4747-4567</span>
-            </div>
-          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -88,10 +79,62 @@ export default function HeroSection() {
               variant="outline"
               size="lg"
               className="border-white text-white transition-all hover:bg-white hover:text-red-800"
+              onClick={() => {
+                const ofertasSection = document.getElementById("ofertas");
+                if (ofertasSection) {
+                  ofertasSection.scrollIntoView({ behavior: "smooth" });
+                } else {
+                  window.location.href = "/offers";
+                }
+              }}
             >
               Ver Ofertas
             </Button>
+            {/* Botón de suscripción */}
+            <Button
+              variant="secondary"
+              size="lg"
+              className="bg-white text-red-800 border border-yellow-400 hover:bg-yellow-100"
+              onClick={() => setShowSubscribe(true)}
+            >
+              Suscribirse
+            </Button>
           </motion.div>
+
+          {/* Modal de suscripción */}
+          {showSubscribe && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+              <div className="bg-white rounded-lg p-8 max-w-sm w-full text-black relative">
+                <button
+                  className="absolute top-2 right-2 text-gray-500 hover:text-red-600"
+                  onClick={() => setShowSubscribe(false)}
+                  aria-label="Cerrar"
+                >
+                  ×
+                </button>
+                <h2 className="text-2xl font-bold mb-4 text-red-800">Suscribite a nuestras ofertas</h2>
+                <form onSubmit={handleSubscribe}>
+                  <input
+                    type="email"
+                    required
+                    placeholder="Tu email"
+                    className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:border-yellow-500"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full bg-yellow-500 text-black hover:bg-yellow-400"
+                  >
+                    Suscribirme
+                  </Button>
+                  {subscribeMsg && (
+                    <p className="mt-3 text-green-600 text-center">{subscribeMsg}</p>
+                  )}
+                </form>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
 

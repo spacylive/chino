@@ -8,6 +8,200 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, LayoutGrid, Settings, Users, ImageIcon, MessageSquare, Video } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import AdminChatSystem from "@/components/admin/admin-chat-system"
+import AdminMarketplaceMessenger from "@/components/admin/admin-marketplace-messenger"
+import { useKeyboardShortcut } from "@/hooks/use-keyboard-shortcut"
+import AdminLoginModal from "@/components/admin-login-modal"
+import type { VideoOffer } from "@/types/video-offers"
+
+function validateOfferForm(formData: FormData, isEdit = false) {
+  const errors: string[] = [];
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const startDate = formData.get("startDate") as string;
+  const endDate = formData.get("endDate") as string;
+  const image = formData.get("image") as File;
+  const video = formData.get("video") as File;
+  const thumbnail = formData.get("thumbnail") as File;
+  if (!title || title.trim().length < 3) errors.push("El título es obligatorio y debe tener al menos 3 caracteres.");
+  if (!description || description.trim().length < 10) errors.push("La descripción debe tener al menos 10 caracteres.");
+  if (!startDate || !endDate) errors.push("Debe ingresar fechas de inicio y fin.");
+  if (startDate && endDate && new Date(startDate) > new Date(endDate)) errors.push("La fecha de inicio debe ser anterior a la fecha de fin.");
+  if (!isEdit) {
+    if (!image || image.size === 0) errors.push("Debe subir una imagen.");
+    if (!video || video.size === 0) errors.push("Debe subir un video.");
+    if (!thumbnail || thumbnail.size === 0) errors.push("Debe subir una miniatura.");
+  }
+  if (image && image.size > 2 * 1024 * 1024) errors.push("La imagen no debe superar 2MB.");
+  if (thumbnail && thumbnail.size > 2 * 1024 * 1024) errors.push("La miniatura no debe superar 2MB.");
+  if (video && video.size > 50 * 1024 * 1024) errors.push("El video no debe superar 50MB.");
+  if (image && !image.type.startsWith("image/")) errors.push("El archivo de imagen no es válido.");
+  if (thumbnail && !thumbnail.type.startsWith("image/")) errors.push("El archivo de miniatura no es válido.");
+  if (video && !video.type.startsWith("video/")) errors.push("El archivo de video no es válido.");
+  return errors;
+}
+
+function VideoOffersList() {
+  const [offers, setOffers] = useState<VideoOffer[]>([])
+  const [editing, setEditing] = useState<null | VideoOffer>(null)
+  const [formErrors, setFormErrors] = useState<string[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetch("/api/offers").then(r => r.json()).then(setOffers)
+  }, [])
+
+  const handleEdit = (offer: VideoOffer) => setEditing(offer)
+  const handleCancel = () => setEditing(null)
+
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    const errors = validateOfferForm(formData, true);
+    if (errors.length) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors([]);
+    const uploadFile = async (file: File, type: string) => {
+      if (!file) return "";
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("type", type);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      return data.path || "";
+    };
+    let videoUrl = formData.get("videoUrl") as string;
+    let thumbnailUrl = formData.get("thumbnailUrl") as string;
+    const videoFile = formData.get("video") as File;
+    const thumbFile = formData.get("thumbnail") as File;
+    if (videoFile && videoFile.size > 0) videoUrl = await uploadFile(videoFile, "video");
+    if (thumbFile && thumbFile.size > 0) thumbnailUrl = await uploadFile(thumbFile, "thumbnail");
+    const updated = {
+      ...editing,
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
+      videoUrl,
+      thumbnailUrl,
+      isActive: formData.get("status") === "activo",
+      startDate: formData.get("startDate") as string,
+      endDate: formData.get("endDate") as string,
+      updatedAt: new Date().toISOString(),
+    };
+    const res = await fetch("/api/offers", { method: "GET" });
+    const all = await res.json();
+    const newList = all.map((o: VideoOffer) => o.id === updated.id ? updated : o);
+    await fetch("/api/offers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newList),
+    });
+    setOffers(newList);
+    setEditing(null);
+    toast({ title: "Oferta actualizada", description: "Los cambios se guardaron correctamente" });
+  };
+
+  if (editing) {
+    return (
+      <form className="space-y-4" onSubmit={handleSave}>
+        {formErrors.length > 0 && (
+          <div className="bg-red-100 border border-red-300 text-red-700 rounded p-2 text-sm">
+            <ul className="list-disc pl-5">
+              {formErrors.map((err, i) => <li key={i}>{err}</li>)}
+            </ul>
+          </div>
+        )}
+        <div>
+          <label className="block mb-1 font-medium">Título</label>
+          <input name="title" defaultValue={editing.title} className="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Estado</label>
+          <select name="status" className="w-full border rounded px-3 py-2" defaultValue={editing.isActive ? "activo" : "programado"}>
+            <option value="activo">Activo</option>
+            <option value="programado">Programado</option>
+          </select>
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Fecha inicio</label>
+          <input name="startDate" type="date" className="w-full border rounded px-3 py-2" defaultValue={editing.startDate} required />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Fecha fin</label>
+          <input name="endDate" type="date" className="w-full border rounded px-3 py-2" defaultValue={editing.endDate} required />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Descripción</label>
+          <textarea name="description" className="w-full border rounded px-3 py-2" rows={2} defaultValue={editing.description} required />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Video actual</label>
+          <video src={editing.videoUrl} controls className="w-full h-32 object-contain mb-2" />
+          <input name="videoUrl" type="hidden" value={editing.videoUrl} />
+          <input name="video" type="file" accept="video/*" className="w-full" />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Miniatura actual</label>
+          <img src={editing.thumbnailUrl} alt="thumb" className="h-10 w-16 object-cover rounded mb-2" />
+          <input name="thumbnailUrl" type="hidden" value={editing.thumbnailUrl} />
+          <input name="thumbnail" type="file" accept="image/*" className="w-full" />
+        </div>
+        <div className="flex gap-2 justify-end">
+          <Button type="button" variant="outline" onClick={handleCancel}>Cancelar</Button>
+          <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Guardar cambios</Button>
+        </div>
+      </form>
+    )
+  }
+
+  if (!offers.length) return <p className="text-gray-500">No hay ofertas registradas.</p>
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full text-sm">
+        <thead>
+          <tr>
+            <th className="px-2 py-1 text-left">Título</th>
+            <th className="px-2 py-1 text-left">Estado</th>
+            <th className="px-2 py-1 text-left">Rango</th>
+            <th className="px-2 py-1 text-left">Miniatura</th>
+            <th className="px-2 py-1 text-left">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {offers.map((offer) => (
+            <tr key={offer.id}>
+              <td className="px-2 py-1">{offer.title}</td>
+              <td className="px-2 py-1">{offer.isActive ? "Activo" : "Programado"}</td>
+              <td className="px-2 py-1">{offer.startDate} - {offer.endDate}</td>
+              <td className="px-2 py-1">
+                <img src={offer.thumbnailUrl} alt="thumb" className="h-10 w-16 object-cover rounded" />
+              </td>
+              <td className="px-2 py-1 flex gap-2">
+                <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                  onClick={() => handleEdit(offer)}
+                >Editar</Button>
+                <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50"
+                  onClick={async () => {
+                    const res = await fetch("/api/offers", { method: "GET" });
+                    const all = await res.json();
+                    const filtered = all.filter((o:any) => o.id !== offer.id);
+                    await fetch("/api/offers", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(filtered),
+                    });
+                    setOffers(filtered);
+                  }}
+                >Eliminar</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
 export default function AdminPage() {
   const router = useRouter()
@@ -15,9 +209,22 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [unreadMessages, setUnreadMessages] = useState(0)
+  const [showAdminSection, setShowAdminSection] = useState(false)
+  const [showAdminLogin, setShowAdminLogin] = useState(false)
+
+  useKeyboardShortcut(
+    " ",
+    () => {
+      if (localStorage.getItem("isAdminAuthenticated") === "true") {
+        setShowAdminSection((v) => !v)
+      } else {
+        setShowAdminLogin(true)
+      }
+    },
+    { ctrlKey: true }
+  )
 
   useEffect(() => {
-    // Check if user is authenticated
     const checkAuth = () => {
       const isAdminAuthenticated = localStorage.getItem("isAdminAuthenticated") === "true"
       setIsAuthenticated(isAdminAuthenticated)
@@ -76,6 +283,22 @@ export default function AdminPage() {
       </header>
 
       <main className="container mx-auto p-6">
+        {showAdminLogin && (
+          <AdminLoginModal isOpen={showAdminLogin} onClose={() => setShowAdminLogin(false)} />
+        )}
+        {showAdminSection && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="relative w-full max-w-3xl">
+              <Button
+                className="absolute right-2 top-2 z-10 bg-white text-red-700 hover:bg-red-100"
+                onClick={() => setShowAdminSection(false)}
+              >
+                Cerrar
+              </Button>
+              <AdminMarketplaceMessenger />
+            </div>
+          </div>
+        )}
         <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
@@ -209,80 +432,124 @@ export default function AdminPage() {
 
           <TabsContent value="video-offers">
             <h2 className="mb-6 text-2xl font-semibold text-gray-800">Video Offers</h2>
-            <Card>
+            <Card className="mb-8">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Promotional Videos</CardTitle>
-                    <CardDescription>Manage video offers displayed on your website</CardDescription>
-                  </div>
-                  <Button
-                    onClick={() => router.push("/admin/video-offers")}
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    Manage Video Offers
-                  </Button>
-                </div>
+                <CardTitle>Crear nueva oferta de video</CardTitle>
+                <CardDescription>Complete los campos y suba los archivos multimedia</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-6 md:grid-cols-3">
-                  <Card>
-                    <CardContent className="p-0">
-                      <div className="relative aspect-video w-full overflow-hidden">
-                        <img
-                          src="/placeholder.svg?height=720&width=1280"
-                          alt="Summer Special Collection"
-                          className="h-full w-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col justify-end">
-                          <span className="mb-1 text-xs font-bold text-white">ACTIVE</span>
-                          <h3 className="text-sm font-bold text-white">Summer Special Collection</h3>
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <p className="text-xs text-gray-500">Jun 1 - Aug 31, 2023</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-0">
-                      <div className="relative aspect-video w-full overflow-hidden">
-                        <img
-                          src="/placeholder.svg?height=720&width=1280"
-                          alt="Premium Tea Collection"
-                          className="h-full w-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col justify-end">
-                          <span className="mb-1 text-xs font-bold text-white">ACTIVE</span>
-                          <h3 className="text-sm font-bold text-white">Premium Tea Collection</h3>
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <p className="text-xs text-gray-500">May 1 - Dec 31, 2023</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-0">
-                      <div className="relative aspect-video w-full overflow-hidden">
-                        <img
-                          src="/placeholder.svg?height=720&width=1280"
-                          alt="Cooking Utensils Sale"
-                          className="h-full w-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col justify-end">
-                          <span className="mb-1 text-xs font-bold text-white">SCHEDULED</span>
-                          <h3 className="text-sm font-bold text-white">Cooking Utensils Sale</h3>
-                        </div>
-                      </div>
-                      <div className="p-3">
-                        <p className="text-xs text-gray-500">Jul 1 - Jul 31, 2023</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <form
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const form = e.currentTarget as HTMLFormElement;
+                    const formData = new FormData(form);
+                    const errors = validateOfferForm(formData);
+                    if (errors.length) {
+                      toast({ title: "Error de validación", description: errors.join("\n"), variant: "destructive" });
+                      return;
+                    }
+                    const uploadFile = async (file: File, type: string) => {
+                      if (!file) return "";
+                      const fd = new FormData();
+                      fd.append("file", file);
+                      fd.append("type", type);
+                      const res = await fetch("/api/upload", { method: "POST", body: fd });
+                      const data = await res.json();
+                      return data.path || "";
+                    };
+                    const image = formData.get("image") as File;
+                    const video = formData.get("video") as File;
+                    const thumbnail = formData.get("thumbnail") as File;
+                    let imageUrl = "";
+                    let videoUrl = "";
+                    let thumbnailUrl = "";
+                    if (image) imageUrl = await uploadFile(image, "image");
+                    if (video) videoUrl = await uploadFile(video, "video");
+                    if (thumbnail) thumbnailUrl = await uploadFile(thumbnail, "thumbnail");
+                    const offer = {
+                      id: Date.now().toString(),
+                      title: formData.get("title") as string,
+                      description: formData.get("description") as string,
+                      videoUrl,
+                      thumbnailUrl,
+                      isActive: formData.get("status") === "activo",
+                      startDate: formData.get("startDate") as string,
+                      endDate: formData.get("endDate") as string,
+                      displayOptions: {
+                        autoplay: true,
+                        controls: true,
+                        loop: true,
+                        muted: true,
+                        showBadge: false,
+                        badgeText: "",
+                        badgeColor: "bg-purple-600",
+                      },
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                    };
+                    const res = await fetch("/api/offers", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(offer),
+                    });
+                    if (res.ok) {
+                      toast({ title: "Oferta guardada", description: "La oferta se guardó correctamente" });
+                      form.reset();
+                      setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                      toast({ title: "Error", description: "No se pudo guardar la oferta", variant: "destructive" });
+                    }
+                  }}
+                >
+                  <div>
+                    <label className="block mb-1 font-medium">Título</label>
+                    <input name="title" className="w-full border rounded px-3 py-2" required />
+                  </div>
+                  <div>
+                    <label className="block mb-1 font-medium">Estado</label>
+                    <select name="status" className="w-full border rounded px-3 py-2">
+                      <option value="activo">Activo</option>
+                      <option value="programado">Programado</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1 font-medium">Fecha inicio</label>
+                    <input name="startDate" type="date" className="w-full border rounded px-3 py-2" required />
+                  </div>
+                  <div>
+                    <label className="block mb-1 font-medium">Fecha fin</label>
+                    <input name="endDate" type="date" className="w-full border rounded px-3 py-2" required />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block mb-1 font-medium">Descripción</label>
+                    <textarea name="description" className="w-full border rounded px-3 py-2" rows={2} required />
+                  </div>
+                  <div>
+                    <label className="block mb-1 font-medium">Imagen</label>
+                    <input name="image" type="file" accept="image/*" className="w-full" required />
+                  </div>
+                  <div>
+                    <label className="block mb-1 font-medium">Video</label>
+                    <input name="video" type="file" accept="video/*" className="w-full" required />
+                  </div>
+                  <div>
+                    <label className="block mb-1 font-medium">Miniatura</label>
+                    <input name="thumbnail" type="file" accept="image/*" className="w-full" required />
+                  </div>
+                  <div className="md:col-span-2 flex justify-end">
+                    <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Guardar Oferta</Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Ofertas de video existentes</CardTitle>
+                <CardDescription>Lista de ofertas guardadas en el sistema</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <VideoOffersList />
               </CardContent>
             </Card>
           </TabsContent>

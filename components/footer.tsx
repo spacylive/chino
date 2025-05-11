@@ -88,8 +88,8 @@ export default function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-bold text-white">Supermercado Kin</h3>
             <p className="mb-4 text-sm">
-              Su destino para productos asiáticos auténticos y de alta calidad. Ofrecemos una amplia selección de
-              alimentos, especias, tés y productos gourmet.
+              Su destino para productos de calidad en Beccar. Ofrecemos una amplia selección de
+              productos.
             </p>
             <div className="flex space-x-4">
               <Link href="#" className="group text-gray-400 transition-colors hover:text-white">
@@ -193,6 +193,7 @@ export default function Footer() {
 
         <div className="mt-12 border-t border-gray-800 pt-8 text-center text-sm">
           <p>&copy; {new Date().getFullYear()} Supermercado Kin. Todos los derechos reservados.</p>
+          <p className="mt-1 text-xs text-gray-400">Papiweb desarrollos informaticos</p>
           <div className="mt-2 flex justify-center space-x-4">
             <Link href="/privacy" className="hover:text-white hover:underline">
               Política de Privacidad

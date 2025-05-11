@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
@@ -42,162 +42,13 @@ interface ChatConversation {
   status: "online" | "offline" | "away"
 }
 
-// Sample data in Spanish
-const sampleConversations: ChatConversation[] = [
-  {
-    id: "conv1",
-    user: {
-      id: "user1",
-      name: "Juan Pérez",
-      email: "juan@ejemplo.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    lastMessage: "Necesito ayuda con mi pedido",
-    lastMessageTime: "10:30 AM",
-    unreadCount: 3,
-    status: "online",
-  },
-  {
-    id: "conv2",
-    user: {
-      id: "user2",
-      name: "María García",
-      email: "maria@ejemplo.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    lastMessage: "Gracias por su ayuda con mi consulta",
-    lastMessageTime: "Ayer",
-    unreadCount: 0,
-    status: "offline",
-  },
-  {
-    id: "conv3",
-    user: {
-      id: "user3",
-      name: "David Chen",
-      email: "david@ejemplo.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    lastMessage: "¿Cuándo tendrán disponible el té verde?",
-    lastMessageTime: "Ayer",
-    unreadCount: 2,
-    status: "away",
-  },
-  {
-    id: "conv4",
-    user: {
-      id: "user4",
-      name: "Sara Jiménez",
-      email: "sara@ejemplo.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    lastMessage: "Tengo problemas con mi compra en línea",
-    lastMessageTime: "Lunes",
-    unreadCount: 0,
-    status: "online",
-  },
-  {
-    id: "conv5",
-    user: {
-      id: "user5",
-      name: "Miguel Wong",
-      email: "miguel@ejemplo.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    lastMessage: "¿Tienen envío a domicilio?",
-    lastMessageTime: "Semana pasada",
-    unreadCount: 0,
-    status: "offline",
-  },
-]
-
-// Sample messages for a conversation in Spanish
-const generateSampleMessages = (conversationId: string): ChatMessage[] => {
-  const conversation = sampleConversations.find((c) => c.id === conversationId)
-  if (!conversation) return []
-
-  const user = conversation.user
-  const admin = {
-    id: "admin1",
-    name: "Administrador",
-    email: "admin@supermercadokin.com",
-    avatar: "/placeholder.svg?height=40&width=40",
-  }
-
-  return [
-    {
-      id: "msg1",
-      conversationId,
-      sender: user,
-      content: "Hola, necesito ayuda con mi pedido reciente.",
-      timestamp: "10:30 AM",
-      read: true,
-      isAdmin: false,
-    },
-    {
-      id: "msg2",
-      conversationId,
-      sender: admin,
-      content: "¡Hola! Con gusto le ayudaré. ¿Podría proporcionarme el número de su pedido?",
-      timestamp: "10:32 AM",
-      read: true,
-      isAdmin: true,
-    },
-    {
-      id: "msg3",
-      conversationId,
-      sender: user,
-      content: "Sí, el número de pedido es #12345. No he recibido confirmación de envío.",
-      timestamp: "10:35 AM",
-      read: true,
-      isAdmin: false,
-    },
-    {
-      id: "msg4",
-      conversationId,
-      sender: admin,
-      content: "Entiendo. Permítame verificar el estado de su pedido en nuestro sistema. Un momento por favor.",
-      timestamp: "10:38 AM",
-      read: true,
-      isAdmin: true,
-    },
-    {
-      id: "msg5",
-      conversationId,
-      sender: user,
-      content: "Gracias, estaré esperando.",
-      timestamp: "10:40 AM",
-      read: false,
-      isAdmin: false,
-    },
-    {
-      id: "msg6",
-      conversationId,
-      sender: user,
-      content: "¿Hay alguna actualización sobre mi pedido?",
-      timestamp: "10:41 AM",
-      read: false,
-      isAdmin: false,
-    },
-    {
-      id: "msg7",
-      conversationId,
-      sender: user,
-      content: "También quería preguntar sobre el horario de entrega.",
-      timestamp: "10:42 AM",
-      read: false,
-      isAdmin: false,
-    },
-  ]
-}
-
 interface AdminChatSystemProps {
   onUnreadMessagesChange: (count: number) => void
 }
 
 export default function AdminChatSystem({ onUnreadMessagesChange }: AdminChatSystemProps) {
   const [activeTab, setActiveTab] = useState("conversations")
-  const [conversations, setConversations] = useState<ChatConversation[]>(sampleConversations)
+  const [conversations, setConversations] = useState<ChatConversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<ChatConversation | null>(null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState("")
@@ -213,18 +64,32 @@ export default function AdminChatSystem({ onUnreadMessagesChange }: AdminChatSys
     onUnreadMessagesChange(totalUnread)
   }, [conversations, onUnreadMessagesChange])
 
-  // Load messages when conversation is selected
+  // Load conversations and messages from API
+  useEffect(() => {
+    fetch("/api/chat")
+      .then((r) => r.json())
+      .then((data) => {
+        setConversations(data.conversations)
+        if (selectedConversation) {
+          setMessages(data.messages.filter((m: any) => m.conversationId === selectedConversation.id))
+        }
+      })
+  }, [])
+
+  // Reload messages when conversation is selected
   useEffect(() => {
     if (selectedConversation) {
-      const conversationMessages = generateSampleMessages(selectedConversation.id)
-      setMessages(conversationMessages)
-
-      // Mark conversation as read
-      if (selectedConversation.unreadCount > 0) {
-        setConversations((prevConversations) =>
-          prevConversations.map((conv) => (conv.id === selectedConversation.id ? { ...conv, unreadCount: 0 } : conv)),
-        )
-      }
+      fetch("/api/chat")
+        .then((r) => r.json())
+        .then((data) => {
+          setMessages(data.messages.filter((m: any) => m.conversationId === selectedConversation.id))
+          // Mark as read
+          fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: "setAllRead", payload: selectedConversation.id }),
+          })
+        })
     }
   }, [selectedConversation])
 
@@ -241,10 +106,10 @@ export default function AdminChatSystem({ onUnreadMessagesChange }: AdminChatSys
       conv.lastMessage.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const handleSendMessage = () => {
+  const handleSendMessage = useCallback(async () => {
     if (!newMessage.trim() || !selectedConversation) return
 
-    const newMsg: ChatMessage = {
+    const msg: ChatMessage = {
       id: `msg${Date.now()}`,
       conversationId: selectedConversation.id,
       sender: {
@@ -259,53 +124,34 @@ export default function AdminChatSystem({ onUnreadMessagesChange }: AdminChatSys
       isAdmin: true,
     }
 
-    setMessages((prev) => [...prev, newMsg])
+    await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "addMessage", payload: msg }),
+    })
+
+    setMessages((prev) => [...prev, msg])
     setNewMessage("")
 
     // Update conversation last message
-    setConversations((prevConversations) =>
-      prevConversations.map((conv) =>
-        conv.id === selectedConversation.id
-          ? {
-              ...conv,
-              lastMessage: newMessage,
-              lastMessageTime: "Ahora",
-            }
-          : conv,
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === selectedConversation.id
+          ? { ...c, lastMessage: msg.content, lastMessageTime: "Ahora" }
+          : c,
       ),
     )
+  }, [newMessage, selectedConversation])
 
-    // Simulate user response after a delay
-    setTimeout(() => {
-      const userResponse: ChatMessage = {
-        id: `msg${Date.now() + 1}`,
-        conversationId: selectedConversation.id,
-        sender: selectedConversation.user,
-        content: "Gracias por su ayuda. Esperaré la información adicional.",
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        read: false,
-        isAdmin: false,
-      }
-
-      setMessages((prev) => [...prev, userResponse])
-
-      // Play new message sound
-      playSound("newMessage")
-
-      // Update conversation
-      setConversations((prevConversations) =>
-        prevConversations.map((conv) =>
-          conv.id === selectedConversation.id
-            ? {
-                ...conv,
-                lastMessage: userResponse.content,
-                lastMessageTime: "Ahora",
-                unreadCount: conv.unreadCount + 1,
-              }
-            : conv,
-        ),
-      )
-    }, 5000)
+  const handleDeleteConversation = async (id: string) => {
+    await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "deleteConversation", payload: id }),
+    })
+    setConversations((prev) => prev.filter((c) => c.id !== id))
+    setSelectedConversation(null)
+    setMessages([])
   }
 
   const markAllAsRead = () => {
@@ -404,6 +250,19 @@ export default function AdminChatSystem({ onUnreadMessagesChange }: AdminChatSys
                 {conversation.unreadCount > 0 && (
                   <Badge className="ml-auto bg-red-600">{conversation.unreadCount}</Badge>
                 )}
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="ml-2 text-red-500 hover:bg-red-100"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDeleteConversation(conversation.id)
+                  }}
+                  title="Eliminar conversación"
+                >
+                  🗑️
+                </Button>
               </div>
             ))
           ) : (

@@ -311,7 +311,7 @@ export default function AdminPage() {
               </div>
             )}
             <Tabs defaultValue="dashboard" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="dashboard" className="flex items-center gap-2">
                   <LayoutGrid className="h-4 w-4" /> Dashboard
                 </TabsTrigger>
@@ -320,6 +320,9 @@ export default function AdminPage() {
                 </TabsTrigger>
                 <TabsTrigger value="video-offers" className="flex items-center gap-2">
                   <Video className="h-4 w-4" /> Video Offers
+                </TabsTrigger>
+                <TabsTrigger value="products" className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" /> Productos
                 </TabsTrigger>
                 <TabsTrigger value="chat" className="flex items-center gap-2">
                   <div className="relative">
@@ -563,6 +566,11 @@ export default function AdminPage() {
                     <VideoOffersList />
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="products">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-800">Administrar Productos</h2>
+                <iframe src="/admin/products" className="w-full min-h-[600px] rounded border" />
               </TabsContent>
 
               <TabsContent value="chat">

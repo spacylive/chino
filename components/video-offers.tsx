@@ -23,85 +23,16 @@ export default function VideoOffers({ className }: VideoOffersProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    // In a real app, this would fetch from an API
+    // Obtener ofertas de video desde la API real
     const fetchVideoOffers = async () => {
       try {
-        // Simulating API call with timeout
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        // Sample data - in a real app this would come from the backend
-        const offers: VideoOffer[] = [
-          {
-            id: "1",
-            title: "Colección Especial de Verano",
-            description: "Descubra nuestros nuevos productos de verano con 20% de descuento",
-            videoUrl: "https://v0.blob.com/sample-video-1.mp4",
-            thumbnailUrl: "/placeholder.svg?height=720&width=1280",
-            isActive: true,
-            startDate: new Date("2023-06-01").toISOString(),
-            endDate: new Date("2023-08-31").toISOString(),
-            displayOptions: {
-              autoplay: true,
-              controls: false,
-              loop: true,
-              muted: true,
-              showBadge: true,
-              badgeText: "20% OFF",
-              badgeColor: "bg-red-500",
-            },
-            createdAt: new Date("2023-05-15").toISOString(),
-            updatedAt: new Date("2023-05-15").toISOString(),
-          },
-          {
-            id: "2",
-            title: "Colección de Tés Premium",
-            description: "Explore nuestra selección exclusiva de tés premium",
-            videoUrl: "https://v0.blob.com/sample-video-2.mp4",
-            thumbnailUrl: "/placeholder.svg?height=720&width=1280",
-            isActive: true,
-            startDate: new Date("2023-05-01").toISOString(),
-            endDate: new Date("2023-12-31").toISOString(),
-            displayOptions: {
-              autoplay: true,
-              controls: false,
-              loop: true,
-              muted: true,
-              showBadge: true,
-              badgeText: "NUEVO",
-              badgeColor: "bg-purple-600",
-            },
-            createdAt: new Date("2023-04-20").toISOString(),
-            updatedAt: new Date("2023-04-20").toISOString(),
-          },
-          {
-            id: "3",
-            title: "Oferta en Utensilios de Cocina",
-            description: "Obtenga hasta 30% de descuento en todos los utensilios de cocina",
-            videoUrl: "https://v0.blob.com/sample-video-3.mp4",
-            thumbnailUrl: "/placeholder.svg?height=720&width=1280",
-            isActive: true,
-            startDate: new Date("2023-07-01").toISOString(),
-            endDate: new Date("2023-07-31").toISOString(),
-            displayOptions: {
-              autoplay: true,
-              controls: false,
-              loop: true,
-              muted: true,
-              showBadge: true,
-              badgeText: "30% OFF",
-              badgeColor: "bg-green-500",
-            },
-            createdAt: new Date("2023-06-15").toISOString(),
-            updatedAt: new Date("2023-06-15").toISOString(),
-          },
-        ]
-
-        // Filter active offers based on current date
+        const res = await fetch("/api/offers")
+        const offers = await res.json()
+        // Filtrar solo las ofertas activas y vigentes
         const now = new Date()
         const activeOffers = offers.filter(
-          (offer) => offer.isActive && new Date(offer.startDate) <= now && new Date(offer.endDate) >= now,
+          (offer: any) => offer.isActive && new Date(offer.startDate) <= now && new Date(offer.endDate) >= now,
         )
-
         setVideoOffers(activeOffers)
         setIsLoading(false)
       } catch (error) {
@@ -109,7 +40,6 @@ export default function VideoOffers({ className }: VideoOffersProps) {
         setIsLoading(false)
       }
     }
-
     fetchVideoOffers()
   }, [])
 
@@ -191,7 +121,7 @@ export default function VideoOffers({ className }: VideoOffersProps) {
                 loop={currentOffer.displayOptions.loop}
                 muted={isMuted}
                 playsInline
-                className="h-full w-full object-cover"
+                className="h-[320px] w-full max-w-2xl mx-auto object-cover rounded-2xl shadow-md border border-gray-100 bg-black"
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
               />

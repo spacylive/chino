@@ -18,6 +18,18 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
   const [cartCount, setCartCount] = useState(0)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [searchError, setSearchError] = useState("")
+
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (!searchTerm.trim()) {
+      setSearchError("Por favor ingrese un término de búsqueda.")
+      return
+    }
+    setSearchError("")
+    window.location.href = `/products?search=${encodeURIComponent(searchTerm)}`
+  }
 
   // Demo cart count update
   useEffect(() => {
@@ -73,12 +85,12 @@ export default function Header() {
                 <div className="flex h-full flex-col">
                   <div className="flex items-center justify-between border-b py-4">
                     <div className="flex items-center gap-2">
-                      <div className="relative h-8 w-8 overflow-hidden rounded-full bg-red-600">
-                        <div className="absolute inset-0 flex items-center justify-center text-lg font-bold text-white">
-                          K
-                        </div>
+                      <div className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-yellow-400 shadow-lg bg-white">
+                        <img src="/images/dragon01.jpg" alt="Logo Universo" className="h-full w-full object-cover" />
                       </div>
-                      <span className="text-xl font-bold text-red-600">Supermercado Kin</span>
+                      <span className="text-2xl font-extrabold text-gradient bg-gradient-to-r from-red-600 via-yellow-400 to-red-700 bg-clip-text text-transparent drop-shadow-lg tracking-wide">
+                        Supermercado Universo
+                      </span>
                     </div>
                     <SheetTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -105,6 +117,14 @@ export default function Header() {
                     <Link href="/contact" className="block rounded-md px-4 py-2 hover:bg-gray-100">
                       Contacto
                     </Link>
+                    <a
+                      href="https://chinadaily.com.cn"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-md px-4 py-2 hover:bg-gray-100 text-blue-700 font-semibold"
+                    >
+                      Blog
+                    </a>
                   </nav>
                   <div className="border-t py-4">
                     <div className="space-y-3">
@@ -121,10 +141,12 @@ export default function Header() {
             </Sheet>
 
             <Link href="/" className="flex items-center gap-2">
-              <div className="relative h-8 w-8 overflow-hidden rounded-full bg-red-600">
-                <div className="absolute inset-0 flex items-center justify-center text-lg font-bold text-white">K</div>
+              <div className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-yellow-400 shadow-lg bg-white">
+                <img src="/images/dragon01.jpg" alt="Logo Universo" className="h-full w-full object-cover" />
               </div>
-              <span className="text-xl font-bold text-red-600">Supermercado Kin</span>
+              <span className="text-2xl font-extrabold text-gradient bg-gradient-to-r from-red-600 via-yellow-400 to-red-700 bg-clip-text text-transparent drop-shadow-lg tracking-wide">
+                Supermercado Universo
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -144,6 +166,14 @@ export default function Header() {
               <Link href="/offers" className="text-sm font-medium text-gray-700 transition-colors hover:text-red-600">
                 Ofertas
               </Link>
+              <a
+                href="https://chinadaily.com.cn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors font-semibold"
+              >
+                Blog
+              </a>
             </nav>
           </div>
 
@@ -153,19 +183,32 @@ export default function Header() {
               searchFocused ? "md:px-0" : "md:px-8",
             )}
           >
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <form onSubmit={handleSearch} className="relative w-full max-w-md">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-yellow-500" />
               <Input
                 type="search"
                 placeholder="Buscar productos..."
-                className="pl-10 pr-10 transition-all focus-visible:ring-red-500"
+                className="pl-12 pr-12 py-2 rounded-full border-2 border-yellow-400 focus:border-red-600 focus:ring-2 focus:ring-red-200 shadow-sm bg-white/80 text-gray-800 placeholder:text-gray-400"
+                value={searchTerm}
+                onChange={e => {
+                  setSearchTerm(e.target.value)
+                  setSearchError("")
+                }}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
+                autoComplete="off"
               />
-              <Button size="sm" className="absolute right-1 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700">
+              <Button
+                size="sm"
+                type="submit"
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-yellow-400 to-red-600 text-white font-bold shadow-md hover:from-yellow-500 hover:to-red-700 transition-all duration-200"
+              >
                 Buscar
               </Button>
-            </div>
+            </form>
+            {searchError && (
+              <div className="text-xs text-red-600 mt-1 font-semibold animate-pulse">{searchError}</div>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
@@ -220,13 +263,30 @@ export default function Header() {
       {/* Mobile search bar */}
       <div className="border-t py-2 md:hidden">
         <div className="container mx-auto px-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input type="search" placeholder="Buscar productos..." className="pl-10 pr-10" />
-            <Button size="sm" className="absolute right-1 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700">
+          <form onSubmit={handleSearch} className="relative">
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-yellow-500" />
+            <Input
+              type="search"
+              placeholder="Buscar productos..."
+              className="pl-12 pr-12 py-2 rounded-full border-2 border-yellow-400 focus:border-red-600 focus:ring-2 focus:ring-red-200 shadow-sm bg-white/80 text-gray-800 placeholder:text-gray-400"
+              value={searchTerm}
+              onChange={e => {
+                setSearchTerm(e.target.value)
+                setSearchError("")
+              }}
+              autoComplete="off"
+            />
+            <Button
+              size="sm"
+              type="submit"
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-yellow-400 to-red-600 text-white font-bold shadow-md hover:from-yellow-500 hover:to-red-700 transition-all duration-200"
+            >
               <Search className="h-4 w-4" />
             </Button>
-          </div>
+          </form>
+          {searchError && (
+            <div className="text-xs text-red-600 mt-1 font-semibold animate-pulse">{searchError}</div>
+          )}
         </div>
       </div>
     </header>

@@ -215,7 +215,7 @@ export default function AdminPage() {
   useKeyboardShortcut(
     " ",
     () => {
-      if (localStorage.getItem("isAdminAuthenticated") === "true") {
+      if (isAuthenticated) {
         setShowAdminSection((v) => !v)
       } else {
         setShowAdminLogin(true)
@@ -224,372 +224,391 @@ export default function AdminPage() {
     { ctrlKey: true }
   )
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const isAdminAuthenticated = localStorage.getItem("isAdminAuthenticated") === "true"
-      setIsAuthenticated(isAdminAuthenticated)
-      setIsLoading(false)
-
-      if (!isAdminAuthenticated) {
-        toast({
-          title: "Access Denied",
-          description: "You must be logged in to access the admin panel",
-          variant: "destructive",
-        })
-        router.push("/")
+  const checkAuth = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/admin/auth/status")
+      if (response.ok) {
+        setIsAuthenticated(true)
+        setShowAdminLogin(false)
+      } else {
+        setIsAuthenticated(false)
+        setShowAdminLogin(true)
       }
+    } catch (error) {
+      setIsAuthenticated(false)
+      setShowAdminLogin(true)
+    } finally {
+      setIsLoading(false)
     }
+  }
 
+  useEffect(() => {
     checkAuth()
-  }, [router, toast])
+  }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem("isAdminAuthenticated")
+  const handleLogout = async () => {
+    await fetch("/api/admin/auth/logout", { method: "POST" })
+    setIsAuthenticated(false)
+    setShowAdminLogin(true)
     toast({
-      title: "Logged Out",
-      description: "You have been logged out successfully",
+      title: "Sesión cerrada",
+      description: "Has cerrado sesión correctamente",
     })
     router.push("/")
   }
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-2">Cargando...</h2>
+          <p className="text-gray-600">Por favor espere</p>
+        </div>
       </div>
     )
   }
 
-  if (!isAuthenticated) {
-    return null
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white p-4 shadow-sm">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router.push("/")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Admin <span className="text-purple-600">Panel</span>
-            </h1>
-          </div>
-          <Button onClick={handleLogout} variant="outline" className="border-red-500 text-red-500 hover:bg-red-50">
-            Logout
-          </Button>
-        </div>
-      </header>
-
-      <main className="container mx-auto p-6">
-        {showAdminLogin && (
-          <AdminLoginModal isOpen={showAdminLogin} onClose={() => setShowAdminLogin(false)} />
-        )}
-        {showAdminSection && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="relative w-full max-w-3xl">
-              <Button
-                className="absolute right-2 top-2 z-10 bg-white text-red-700 hover:bg-red-100"
-                onClick={() => setShowAdminSection(false)}
-              >
-                Cerrar
-              </Button>
-              <AdminMarketplaceMessenger />
-            </div>
-          </div>
-        )}
-        <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <LayoutGrid className="h-4 w-4" /> Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="galleries" className="flex items-center gap-2">
-              <ImageIcon className="h-4 w-4" /> Galleries
-            </TabsTrigger>
-            <TabsTrigger value="video-offers" className="flex items-center gap-2">
-              <Video className="h-4 w-4" /> Video Offers
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="flex items-center gap-2">
-              <div className="relative">
-                <MessageSquare className="h-4 w-4" />
-                {unreadMessages > 0 && (
-                  <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-                    {unreadMessages}
-                  </span>
-                )}
+    <div className="flex h-screen flex-col">
+      {isAuthenticated ? (
+        <>
+          <header className="border-b bg-white p-4 shadow-sm">
+            <div className="container mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" onClick={() => router.push("/")}>
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <h1 className="text-2xl font-bold text-gray-800">
+                  Admin <span className="text-purple-600">Panel</span>
+                </h1>
               </div>
-              Chat
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="h-4 w-4" /> Users
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" /> Settings
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="dashboard" className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-800">Dashboard</h2>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total Galleries</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">12</div>
-                  <p className="text-xs text-muted-foreground">+2 from last month</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total Photos</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">248</div>
-                  <p className="text-xs text-muted-foreground">+24 from last month</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">36</div>
-                  <p className="text-xs text-muted-foreground">+4 from last month</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Video Offers</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">3</div>
-                  <p className="text-xs text-muted-foreground">+1 from last month</p>
-                </CardContent>
-              </Card>
+              <Button onClick={handleLogout} variant="outline" className="border-red-500 text-red-500 hover:bg-red-50">
+                Logout
+              </Button>
             </div>
+          </header>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Overview of recent system activity</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <div>
-                      <p className="font-medium">New video offer created</p>
-                      <p className="text-sm text-gray-500">Summer Special Collection</p>
-                    </div>
-                    <p className="text-sm text-gray-500">2 hours ago</p>
-                  </div>
-
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <div>
-                      <p className="font-medium">User registered</p>
-                      <p className="text-sm text-gray-500">maria@example.com</p>
-                    </div>
-                    <p className="text-sm text-gray-500">5 hours ago</p>
-                  </div>
-
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <div>
-                      <p className="font-medium">New chat message</p>
-                      <p className="text-sm text-gray-500">From: john@example.com</p>
-                    </div>
-                    <p className="text-sm text-gray-500">Yesterday</p>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Layout template added</p>
-                      <p className="text-sm text-gray-500">Modern Split</p>
-                    </div>
-                    <p className="text-sm text-gray-500">2 days ago</p>
-                  </div>
+          <main className="container mx-auto p-6">
+            {showAdminLogin && (
+              <AdminLoginModal 
+                isOpen={showAdminLogin} 
+                onClose={() => setShowAdminLogin(false)} 
+                onLoginSuccess={checkAuth} 
+              />
+            )}
+            {showAdminSection && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                <div className="relative w-full max-w-3xl">
+                  <Button
+                    className="absolute right-2 top-2 z-10 bg-white text-red-700 hover:bg-red-100"
+                    onClick={() => setShowAdminSection(false)}
+                  >
+                    Cerrar
+                  </Button>
+                  <AdminMarketplaceMessenger />
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+            )}
+            <Tabs defaultValue="dashboard" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                  <LayoutGrid className="h-4 w-4" /> Dashboard
+                </TabsTrigger>
+                <TabsTrigger value="galleries" className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" /> Galleries
+                </TabsTrigger>
+                <TabsTrigger value="video-offers" className="flex items-center gap-2">
+                  <Video className="h-4 w-4" /> Video Offers
+                </TabsTrigger>
+                <TabsTrigger value="chat" className="flex items-center gap-2">
+                  <div className="relative">
+                    <MessageSquare className="h-4 w-4" />
+                    {unreadMessages > 0 && (
+                      <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                        {unreadMessages}
+                      </span>
+                    )}
+                  </div>
+                  Chat
+                </TabsTrigger>
+                <TabsTrigger value="users" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" /> Users
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" /> Settings
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="galleries">
-            <h2 className="mb-6 text-2xl font-semibold text-gray-800">Gallery Management</h2>
-            <Card>
-              <CardHeader>
-                <CardTitle>All Galleries</CardTitle>
-                <CardDescription>Manage photo galleries and layouts</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">Gallery management interface would go here.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <TabsContent value="dashboard" className="space-y-6">
+                <h2 className="text-2xl font-semibold text-gray-800">Dashboard</h2>
 
-          <TabsContent value="video-offers">
-            <h2 className="mb-6 text-2xl font-semibold text-gray-800">Video Offers</h2>
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Crear nueva oferta de video</CardTitle>
-                <CardDescription>Complete los campos y suba los archivos multimedia</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form
-                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    const form = e.currentTarget as HTMLFormElement;
-                    const formData = new FormData(form);
-                    const errors = validateOfferForm(formData);
-                    if (errors.length) {
-                      toast({ title: "Error de validación", description: errors.join("\n"), variant: "destructive" });
-                      return;
-                    }
-                    const uploadFile = async (file: File, type: string) => {
-                      if (!file) return "";
-                      const fd = new FormData();
-                      fd.append("file", file);
-                      fd.append("type", type);
-                      const res = await fetch("/api/upload", { method: "POST", body: fd });
-                      const data = await res.json();
-                      return data.path || "";
-                    };
-                    const image = formData.get("image") as File;
-                    const video = formData.get("video") as File;
-                    const thumbnail = formData.get("thumbnail") as File;
-                    let imageUrl = "";
-                    let videoUrl = "";
-                    let thumbnailUrl = "";
-                    if (image) imageUrl = await uploadFile(image, "image");
-                    if (video) videoUrl = await uploadFile(video, "video");
-                    if (thumbnail) thumbnailUrl = await uploadFile(thumbnail, "thumbnail");
-                    const offer = {
-                      id: Date.now().toString(),
-                      title: formData.get("title") as string,
-                      description: formData.get("description") as string,
-                      videoUrl,
-                      thumbnailUrl,
-                      isActive: formData.get("status") === "activo",
-                      startDate: formData.get("startDate") as string,
-                      endDate: formData.get("endDate") as string,
-                      displayOptions: {
-                        autoplay: true,
-                        controls: true,
-                        loop: true,
-                        muted: true,
-                        showBadge: false,
-                        badgeText: "",
-                        badgeColor: "bg-purple-600",
-                      },
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                    };
-                    const res = await fetch("/api/offers", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(offer),
-                    });
-                    if (res.ok) {
-                      toast({ title: "Oferta guardada", description: "La oferta se guardó correctamente" });
-                      form.reset();
-                      setTimeout(() => window.location.reload(), 1000);
-                    } else {
-                      toast({ title: "Error", description: "No se pudo guardar la oferta", variant: "destructive" });
-                    }
-                  }}
-                >
-                  <div>
-                    <label className="block mb-1 font-medium">Título</label>
-                    <input name="title" className="w-full border rounded px-3 py-2" required />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">Estado</label>
-                    <select name="status" className="w-full border rounded px-3 py-2">
-                      <option value="activo">Activo</option>
-                      <option value="programado">Programado</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">Fecha inicio</label>
-                    <input name="startDate" type="date" className="w-full border rounded px-3 py-2" required />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">Fecha fin</label>
-                    <input name="endDate" type="date" className="w-full border rounded px-3 py-2" required />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block mb-1 font-medium">Descripción</label>
-                    <textarea name="description" className="w-full border rounded px-3 py-2" rows={2} required />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">Imagen</label>
-                    <input name="image" type="file" accept="image/*" className="w-full" required />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">Video</label>
-                    <input name="video" type="file" accept="video/*" className="w-full" required />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">Miniatura</label>
-                    <input name="thumbnail" type="file" accept="image/*" className="w-full" required />
-                  </div>
-                  <div className="md:col-span-2 flex justify-end">
-                    <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Guardar Oferta</Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Ofertas de video existentes</CardTitle>
-                <CardDescription>Lista de ofertas guardadas en el sistema</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <VideoOffersList />
-              </CardContent>
-            </Card>
-          </TabsContent>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Total Galleries</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">12</div>
+                      <p className="text-xs text-muted-foreground">+2 from last month</p>
+                    </CardContent>
+                  </Card>
 
-          <TabsContent value="chat">
-            <h2 className="mb-6 text-2xl font-semibold text-gray-800">Chat System</h2>
-            <AdminChatSystem onUnreadMessagesChange={setUnreadMessages} />
-          </TabsContent>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Total Photos</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">248</div>
+                      <p className="text-xs text-muted-foreground">+24 from last month</p>
+                    </CardContent>
+                  </Card>
 
-          <TabsContent value="users">
-            <h2 className="mb-6 text-2xl font-semibold text-gray-800">User Management</h2>
-            <Card>
-              <CardHeader>
-                <CardTitle>All Users</CardTitle>
-                <CardDescription>Manage user accounts and permissions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">User management interface would go here.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">36</div>
+                      <p className="text-xs text-muted-foreground">+4 from last month</p>
+                    </CardContent>
+                  </Card>
 
-          <TabsContent value="settings">
-            <h2 className="mb-6 text-2xl font-semibold text-gray-800">System Settings</h2>
-            <Card>
-              <CardHeader>
-                <CardTitle>Application Settings</CardTitle>
-                <CardDescription>Configure system preferences and options</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">Settings interface would go here.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Video Offers</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">3</div>
+                      <p className="text-xs text-muted-foreground">+1 from last month</p>
+                    </CardContent>
+                  </Card>
+                </div>
 
-      <footer className="mt-8 border-t bg-white p-4 text-center text-sm text-gray-500">
-        <p>&copy; {new Date().getFullYear()} Photo Display Configurator - Admin Panel</p>
-      </footer>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Activity</CardTitle>
+                    <CardDescription>Overview of recent system activity</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <div>
+                          <p className="font-medium">New video offer created</p>
+                          <p className="text-sm text-gray-500">Summer Special Collection</p>
+                        </div>
+                        <p className="text-sm text-gray-500">2 hours ago</p>
+                      </div>
+
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <div>
+                          <p className="font-medium">User registered</p>
+                          <p className="text-sm text-gray-500">maria@example.com</p>
+                        </div>
+                        <p className="text-sm text-gray-500">5 hours ago</p>
+                      </div>
+
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <div>
+                          <p className="font-medium">New chat message</p>
+                          <p className="text-sm text-gray-500">From: john@example.com</p>
+                        </div>
+                        <p className="text-sm text-gray-500">Yesterday</p>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">Layout template added</p>
+                          <p className="text-sm text-gray-500">Modern Split</p>
+                        </div>
+                        <p className="text-sm text-gray-500">2 days ago</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="galleries">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-800">Gallery Management</h2>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>All Galleries</CardTitle>
+                    <CardDescription>Manage photo galleries and layouts</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-500">Gallery management interface would go here.</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="video-offers">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-800">Video Offers</h2>
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle>Crear nueva oferta de video</CardTitle>
+                    <CardDescription>Complete los campos y suba los archivos multimedia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form
+                      className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const form = e.currentTarget as HTMLFormElement;
+                        const formData = new FormData(form);
+                        const errors = validateOfferForm(formData);
+                        if (errors.length) {
+                          toast({ title: "Error de validación", description: errors.join("\n"), variant: "destructive" });
+                          return;
+                        }
+                        const uploadFile = async (file: File, type: string) => {
+                          if (!file) return "";
+                          const fd = new FormData();
+                          fd.append("file", file);
+                          fd.append("type", type);
+                          const res = await fetch("/api/upload", { method: "POST", body: fd });
+                          const data = await res.json();
+                          return data.path || "";
+                        };
+                        const image = formData.get("image") as File;
+                        const video = formData.get("video") as File;
+                        const thumbnail = formData.get("thumbnail") as File;
+                        let imageUrl = "";
+                        let videoUrl = "";
+                        let thumbnailUrl = "";
+                        if (image) imageUrl = await uploadFile(image, "image");
+                        if (video) videoUrl = await uploadFile(video, "video");
+                        if (thumbnail) thumbnailUrl = await uploadFile(thumbnail, "thumbnail");
+                        const offer = {
+                          id: Date.now().toString(),
+                          title: formData.get("title") as string,
+                          description: formData.get("description") as string,
+                          videoUrl,
+                          thumbnailUrl,
+                          isActive: formData.get("status") === "activo",
+                          startDate: formData.get("startDate") as string,
+                          endDate: formData.get("endDate") as string,
+                          displayOptions: {
+                            autoplay: true,
+                            controls: true,
+                            loop: true,
+                            muted: true,
+                            showBadge: false,
+                            badgeText: "",
+                            badgeColor: "bg-purple-600",
+                          },
+                          createdAt: new Date().toISOString(),
+                          updatedAt: new Date().toISOString(),
+                        };
+                        const res = await fetch("/api/offers", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(offer),
+                        });
+                        if (res.ok) {
+                          toast({ title: "Oferta guardada", description: "La oferta se guardó correctamente" });
+                          form.reset();
+                          setTimeout(() => window.location.reload(), 1000);
+                        } else {
+                          toast({ title: "Error", description: "No se pudo guardar la oferta", variant: "destructive" });
+                        }
+                      }}
+                    >
+                      <div>
+                        <label className="block mb-1 font-medium">Título</label>
+                        <input name="title" className="w-full border rounded px-3 py-2" required />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium">Estado</label>
+                        <select name="status" className="w-full border rounded px-3 py-2">
+                          <option value="activo">Activo</option>
+                          <option value="programado">Programado</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium">Fecha inicio</label>
+                        <input name="startDate" type="date" className="w-full border rounded px-3 py-2" required />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium">Fecha fin</label>
+                        <input name="endDate" type="date" className="w-full border rounded px-3 py-2" required />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block mb-1 font-medium">Descripción</label>
+                        <textarea name="description" className="w-full border rounded px-3 py-2" rows={2} required />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium">Imagen</label>
+                        <input name="image" type="file" accept="image/*" className="w-full" required />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium">Video</label>
+                        <input name="video" type="file" accept="video/*" className="w-full" required />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium">Miniatura</label>
+                        <input name="thumbnail" type="file" accept="image/*" className="w-full" required />
+                      </div>
+                      <div className="md:col-span-2 flex justify-end">
+                        <Button type="submit" className="bg-purple-600 hover:bg-purple-700">Guardar Oferta</Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Ofertas de video existentes</CardTitle>
+                    <CardDescription>Lista de ofertas guardadas en el sistema</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <VideoOffersList />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="chat">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-800">Chat System</h2>
+                <AdminChatSystem onUnreadMessagesChange={setUnreadMessages} />
+              </TabsContent>
+
+              <TabsContent value="users">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-800">User Management</h2>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>All Users</CardTitle>
+                    <CardDescription>Manage user accounts and permissions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-500">User management interface would go here.</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="settings">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-800">System Settings</h2>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Application Settings</CardTitle>
+                    <CardDescription>Configure system preferences and options</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-500">Settings interface would go here.</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </main>
+
+          <footer className="mt-8 border-t bg-white p-4 text-center text-sm text-gray-500">
+            <p>&copy; {new Date().getFullYear()} Photo Display Configurator - Admin Panel</p>
+          </footer>
+        </>
+      ) : (
+        <AdminLoginModal 
+          isOpen={showAdminLogin} 
+          onClose={() => setShowAdminLogin(false)} 
+          onLoginSuccess={checkAuth}
+        />
+      )}
     </div>
   )
 }

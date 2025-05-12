@@ -9,9 +9,9 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Supermercado Kin - Productos Asiáticos de Calidad",
-  description: "Descubra nuestra selección de productos asiáticos premium en Supermercado Kin",
-    generator: 'v0.dev'
+  title: "Supermercado Universo - Productos de Calidad",
+  description: "Descubra nuestra selección de productos de Supermercado Universo",
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" className="scroll-smooth">
+    <html lang="es" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -28,7 +28,13 @@ export default function RootLayout({
         <meta name="theme-color" content="#b91c1c" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <ThemeProvider 
+          attribute="class" 
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          storageKey="ui-theme"
+        >
           <Header />
           {children}
           <ChatButton />

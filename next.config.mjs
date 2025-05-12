@@ -11,4 +11,9 @@ const nextConfig = {
   },
 }
 
+// Polyfill para navegadores legacy
+if (typeof require !== 'undefined') {
+  require('./polyfills.js');
+}
+
 export default nextConfig

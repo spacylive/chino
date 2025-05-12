@@ -39,7 +39,7 @@ export default function Footer() {
             <div className="max-w-md">
               <h3 className="mb-2 text-2xl font-bold">Suscríbase a Nuestro Boletín</h3>
               <p className="text-red-100">
-                Reciba ofertas exclusivas, recetas y noticias sobre nuevos productos directamente en su bandeja de
+                Reciba ofertas exclusivas en su bandeja de
                 entrada.
               </p>
             </div>
@@ -83,10 +83,25 @@ export default function Footer() {
       </div>
 
       <div className="container mx-auto px-4 py-12">
+        <div className="bg-yellow-50 rounded-xl shadow-md border border-yellow-200 p-6 mb-8 flex flex-col items-center max-w-md mx-auto">
+          <h2 className="text-lg font-bold text-red-700 mb-2">Horario de Atención</h2>
+          <ul className="space-y-2 text-base w-full">
+            {[
+              { day: "Lunes a Sábados", hours: "8:30 - 13:00 y 17:00 - 20:00" },
+              { day: "Domingo", hours: "9:00 - 13:00" },
+            ].map((schedule, index) => (
+              <li key={index} className="flex flex-col items-center text-center">
+                <span className="font-semibold text-gray-700">{schedule.day}</span>
+                <span className="text-gray-600">{schedule.hours}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* About */}
           <div>
-            <h3 className="mb-4 text-lg font-bold text-white">Supermercado Kin</h3>
+            <h3 className="mb-4 text-lg font-bold text-white">Supermercado Universo</h3>
             <p className="mb-4 text-sm">
               Su destino para productos de calidad en Beccar. Ofrecemos una amplia selección de
               productos.
@@ -130,7 +145,7 @@ export default function Footer() {
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >
                 <Mail className="mr-2 h-4 w-4 text-red-500" />
-                <span>info@supermercadokin.com</span>
+                <span>info@supermercadouniverso.com</span>
               </motion.li>
               <motion.li
                 className="flex items-center"
@@ -138,7 +153,7 @@ export default function Footer() {
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >
                 <Clock className="mr-2 h-4 w-4 text-red-500" />
-                <span>Lun-Sáb: 9:00-20:00, Dom: 10:00-18:00</span>
+                <span>Supermercado Universo</span>
               </motion.li>
             </ul>
           </div>
@@ -169,30 +184,32 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Business Hours */}
+          {/* Customer Service */}
           <div>
-            <h3 className="mb-4 text-lg font-bold text-white">Horario de Atención</h3>
+            <h3 className="mb-4 text-lg font-bold text-white">Atención al Cliente</h3>
             <ul className="space-y-2 text-sm">
               {[
-                { day: "Lunes", hours: "9:00 - 20:00" },
-                { day: "Martes", hours: "9:00 - 20:00" },
-                { day: "Miércoles", hours: "9:00 - 20:00" },
-                { day: "Jueves", hours: "9:00 - 20:00" },
-                { day: "Viernes", hours: "9:00 - 20:00" },
-                { day: "Sábado", hours: "9:00 - 20:00" },
-                { day: "Domingo", hours: "10:00 - 18:00" },
-              ].map((schedule, index) => (
-                <li key={index} className="flex justify-between">
-                  <span>{schedule.day}</span>
-                  <span>{schedule.hours}</span>
-                </li>
+                "Servicio y buena atención",
+                "Garantía de satisfacción",
+                "Devoluciones fáciles",
+                "Ayuda en línea 24/7"
+              ].map((text, index) => (
+                <motion.li
+                  key={index}
+                  className="flex items-center"
+                  whileHover={{ x: 5 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Check className="mr-2 h-4 w-4 text-green-500" />
+                  <span>{text}</span>
+                </motion.li>
               ))}
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 border-t border-gray-800 pt-8 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} Supermercado Kin. Todos los derechos reservados.</p>
+        <div className="mt-12 border-t border-gray-800 pt-8 text-center text-sm relative">
+          <p>&copy; {new Date().getFullYear()} Supermercado Universo. Todos los derechos reservados.</p>
           <p className="mt-1 text-xs text-gray-400">Papiweb desarrollos informaticos</p>
           <div className="mt-2 flex justify-center space-x-4">
             <Link href="/privacy" className="hover:text-white hover:underline">
@@ -205,6 +222,13 @@ export default function Footer() {
               Política de Envíos
             </Link>
           </div>
+          {/* Imagen decorativa dragon2 abajo a la derecha */}
+          <img
+            src="/images/dragon2.jpg"
+            alt="Dragón decorativo"
+            className="hidden md:block absolute right-0 bottom-0 w-32 h-auto opacity-80 pointer-events-none select-none"
+            style={{zIndex: 1}}
+          />
         </div>
       </div>
     </footer>

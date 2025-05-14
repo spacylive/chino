@@ -52,6 +52,7 @@ const categories = [
 export default function CategoriesSection() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<number | null>(null)
+  const [products, setProducts] = useState<any[]>([])
 
   // Simulate loading state
   useEffect(() => {
@@ -59,6 +60,12 @@ export default function CategoriesSection() {
       setIsLoading(false)
     }, 800)
     return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then(r => r.json())
+      .then(data => setProducts(data.slice(0, 6)))
   }, [])
 
   const container = {
@@ -81,7 +88,7 @@ export default function CategoriesSection() {
       <div className="container mx-auto px-4">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <h2 className="mb-12 text-center text-3xl font-bold text-gray-900">
-            Compre por <span className="text-red-600">Categoría</span>
+            Compre en <span className="text-red-600">Supermercado Universo</span>
           </h2>
         </motion.div>
 
@@ -101,28 +108,27 @@ export default function CategoriesSection() {
             animate="show"
             className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
           >
-            {categories.map((category) => (
-              <motion.div key={category.id} variants={item}>
-                <Link href={`/category/${category.slug}`}>
-                  <Card
-                    className="overflow-hidden transition-all duration-300 hover:shadow-lg"
-                    onMouseEnter={() => setActiveCategory(category.id)}
-                    onMouseLeave={() => setActiveCategory(null)}
-                  >
-                    <div className="aspect-square overflow-hidden">
-                      <img
-                        src={category.image || "/placeholder.svg"}
-                        alt={category.name}
-                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
-                        loading="lazy"
-                      />
-                    </div>
-                    <CardContent className="p-3 text-center">
-                      <h3 className="font-medium text-gray-900">{category.name}</h3>
-                      <p className="mt-1 text-xs text-gray-500">{category.count} productos</p>
-                    </CardContent>
-                  </Card>
-                </Link>
+            {products.map((product: any) => (
+              <motion.div
+                key={product.id}
+                variants={item}
+                whileHover={{ scale: 1.08 }}
+                className="transition-transform duration-300"
+              >
+                <Card className="overflow-hidden rounded-lg shadow hover:shadow-lg border-0 bg-white transition-all duration-300 hover:ring-4 hover:ring-red-200">
+                  <div className="aspect-square overflow-hidden">
+                    <img
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+                      loading="lazy"
+                    />
+                  </div>
+                  <CardContent className="p-3 text-center">
+                    <h3 className="font-medium text-gray-900 line-clamp-1">{product.name}</h3>
+                    <p className="mt-1 text-xs text-gray-500">${Number(product.price).toLocaleString()}</p>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </motion.div>

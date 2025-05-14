@@ -17,10 +17,16 @@ export default function VideoOffers({ className }: VideoOffersProps) {
   const [videoOffers, setVideoOffers] = useState<VideoOffer[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [isMuted, setIsMuted] = useState(true)
+  const [isMuted, setIsMuted] = useState(true) // Iniciamos en silencio por política de autoplay
   const [isPlaying, setIsPlaying] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [aspectRatio, setAspectRatio] = useState<string>("16/9")
+  const [videoError, setVideoError] = useState(false)
+  const [showControls, setShowControls] = useState(false)
+  const [canAutoplay, setCanAutoplay] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+
+  const currentOffer = videoOffers[currentIndex]
 
   useEffect(() => {
     // Obtener ofertas de video desde la API real
@@ -33,6 +39,11 @@ export default function VideoOffers({ className }: VideoOffersProps) {
         const activeOffers = offers.filter(
           (offer: any) => offer.isActive && new Date(offer.startDate) <= now && new Date(offer.endDate) >= now,
         )
+        // Mezclar el orden de los videos de forma aleatoria
+        for (let i = activeOffers.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[activeOffers[i], activeOffers[j]] = [activeOffers[j], activeOffers[i]]
+        }
         setVideoOffers(activeOffers)
         setIsLoading(false)
       } catch (error) {
@@ -44,15 +55,77 @@ export default function VideoOffers({ className }: VideoOffersProps) {
   }, [])
 
   useEffect(() => {
-    // Auto-advance carousel
-    const interval = setInterval(() => {
-      if (!isHovered) {
-        setCurrentIndex((prevIndex) => (prevIndex === videoOffers.length - 1 ? 0 : prevIndex + 1))
-      }
-    }, 8000)
+    if (!isHovered && videoOffers.length > 0 && videoRef.current) {
+      const video = videoRef.current;
+      const handleEnded = () => {
+        setCurrentIndex((prevIndex: number) => (prevIndex === videoOffers.length - 1 ? 0 : prevIndex + 1));
+      };
+      video.addEventListener("ended", handleEnded);
+      return () => video.removeEventListener("ended", handleEnded);
+    }
+  }, [isHovered, videoOffers.length, currentIndex]);
 
-    return () => clearInterval(interval)
-  }, [videoOffers.length, isHovered])
+  useEffect(() => {
+    if (!currentOffer) return;
+    if (videoRef.current) {
+      const handleLoadedMetadata = () => {
+        const video = videoRef.current
+        if (video && video.videoWidth && video.videoHeight) {
+          const ratio = video.videoWidth / video.videoHeight
+          if (ratio < 1) {
+            setAspectRatio("9/16") // vertical
+          } else {
+            setAspectRatio("16/9") // horizontal
+          }
+        }
+      }
+      videoRef.current.addEventListener("loadedmetadata", handleLoadedMetadata)
+      return () => videoRef.current?.removeEventListener("loadedmetadata", handleLoadedMetadata)
+    }
+  }, [currentOffer?.videoUrl])
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+      videoRef.current.volume = isMuted ? 0 : 1;
+    }
+  }, [currentOffer?.videoUrl, isMuted]);
+
+  useEffect(() => {
+    setVideoError(false)
+  }, [currentOffer?.videoUrl])
+
+  useEffect(() => {
+    // Verificar si podemos hacer autoplay con sonido
+    const checkAutoplay = async () => {
+      try {
+        if (videoRef.current) {
+          // Intentar reproducir sin sonido primero
+          await videoRef.current.play()
+          setCanAutoplay(true)
+          setIsPlaying(true)
+        }
+      } catch (error) {
+        console.log('Autoplay not allowed:', error)
+        setCanAutoplay(false)
+        setIsPlaying(false)
+      }
+    }
+
+    if (videoRef.current && currentOffer) {
+      checkAutoplay()
+    }
+  }, [currentOffer])
+
+  // Efecto para manejar el cambio de video
+  useEffect(() => {
+    if (videoRef.current && currentOffer) {
+      if (canAutoplay) {
+        videoRef.current.play()
+        setIsPlaying(true)
+      }
+    }
+  }, [currentOffer, canAutoplay])
 
   const handlePrevious = () => {
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? videoOffers.length - 1 : prevIndex - 1))
@@ -92,8 +165,6 @@ export default function VideoOffers({ className }: VideoOffersProps) {
     return null
   }
 
-  const currentOffer = videoOffers[currentIndex]
-
   return (
     <div
       className={cn("relative w-full overflow-hidden rounded-lg shadow-lg", className)}
@@ -110,24 +181,89 @@ export default function VideoOffers({ className }: VideoOffersProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
-              className="relative aspect-video w-full overflow-hidden"
+              className={cn(
+                "relative w-full overflow-hidden flex justify-center items-center bg-black",
+                aspectRatio === "9/16"
+                  ? "aspect-[9/16] max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto"
+                  : "aspect-video max-w-3xl mx-auto"
+              )}
             >
-              <video
-                ref={videoRef}
-                src={currentOffer.videoUrl}
-                poster={currentOffer.thumbnailUrl}
-                autoPlay={currentOffer.displayOptions.autoplay}
-                controls={currentOffer.displayOptions.controls}
-                loop={currentOffer.displayOptions.loop}
-                muted={isMuted}
-                playsInline
-                className="h-[320px] w-full max-w-2xl mx-auto object-cover rounded-2xl shadow-md border border-gray-100 bg-black"
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-              />
+              {/* Mostrar error si el video falla */}
+              {videoError ? (
+                <div className="flex flex-col items-center justify-center w-full h-full text-center p-8">
+                  <span className="text-red-500 text-lg font-semibold mb-2">No se pudo cargar el video</span>
+                  <span className="text-gray-400 text-sm">Intenta con otro video o recarga la página.</span>
+                </div>
+              ) : (
+                <video
+                  ref={videoRef}
+                  src={currentOffer.videoUrl}
+                  poster={currentOffer.thumbnailUrl}
+                  autoPlay={currentOffer.displayOptions.autoplay}
+                  controls={false}
+                  loop={currentOffer.displayOptions.loop}
+                  muted={isMuted}
+                  playsInline
+                  className={cn(
+                    aspectRatio === "9/16"
+                      ? "h-full w-full object-contain bg-black rounded-2xl shadow-2xl border-4 border-white"
+                      : "h-[480px] w-full max-w-3xl mx-auto object-cover rounded-2xl shadow-2xl border-4 border-white bg-black"
+                  )}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onError={() => setVideoError(true)}
+                  onLoadedData={() => setShowControls(true)}
+                />
+              )}
+
+              {/* Controles personalizados pequeños */}
+              {!videoError && showControls && (
+                <div className="absolute bottom-2 left-2 flex gap-2 items-center bg-black/40 rounded-full px-2 py-1 shadow-md">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 p-0 text-white hover:bg-black/60"
+                    onClick={togglePlay}
+                    aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
+                  >
+                    <Play className={cn("h-4 w-4", isPlaying ? "opacity-30" : "")}/>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 p-0 text-white hover:bg-black/60"
+                    onClick={toggleMute}
+                    aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
+                  >
+                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  </Button>
+                  {videoOffers.length > 1 && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 p-0 text-white hover:bg-black/60"
+                        onClick={handlePrevious}
+                        aria-label="Anterior"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 p-0 text-white hover:bg-black/60"
+                        onClick={handleNext}
+                        aria-label="Siguiente"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* Play/Pause overlay */}
-              {!isPlaying && (
+              {!isPlaying && !videoError && (
                 <div
                   className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity hover:opacity-100"
                   onClick={togglePlay}

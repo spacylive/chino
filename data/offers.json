@@ -1,107 +1,78 @@
 [
   {
-    "id": "1747086486214",
-    "title": "ofertas universo",
-    "description": "hablar con el cajero",
-    "videoUrl": "/media/videos/1747086485625-2zf5r9d6z9r.mp4",
-    "thumbnailUrl": "/media/thumbnails/1747086486103-zo0f96ffbdg.jpg",
+    "id": "1",
+    "title": "Más Ofertas del Universo",
+    "description": "¡Descubre las mejores ofertas que el universo tiene para ti!",
+    "videoUrl": "/media/videos/Más ofertas universo.mp4",
+    "thumbnailUrl": "/placeholder.jpg",
     "isActive": true,
-    "startDate": "2025-05-12",
-    "endDate": "2025-05-23",
+    "startDate": "2025-01-01T00:00:00.000Z",
+    "endDate": "2025-12-31T23:59:59.999Z",
     "displayOptions": {
       "autoplay": true,
-      "controls": true,
+      "controls": false,
       "loop": true,
       "muted": true,
-      "showBadge": false,
-      "badgeText": "",
-      "badgeColor": "bg-purple-600"
-    },
-    "createdAt": "2025-05-12T21:48:06.214Z",
-    "updatedAt": "2025-05-12T21:48:06.214Z"
+      "showBadge": true,
+      "badgeText": "Nuevo",
+      "badgeColor": "bg-red-600"
+    }
   },
   {
-    "id": "1747087593203",
-    "title": "ofertas universo",
-    "description": "veni a universo",
-    "videoUrl": "/media/videos/1747087592108-pj56z8ykh.mp4",
-    "thumbnailUrl": "/media/thumbnails/1747087593042-s9rvyvqwaj9.jpg",
+    "id": "2",
+    "title": "¡Super Ofertas del Universo!",
+    "description": "Las ofertas más increíbles están aquí esperándote",
+    "videoUrl": "/media/videos/¡Mirá estas Super Ofertas Universosuper.mp4",
+    "thumbnailUrl": "/placeholder.jpg",
     "isActive": true,
-    "startDate": "2025-05-12",
-    "endDate": "2025-05-17",
+    "startDate": "2025-01-01T00:00:00.000Z",
+    "endDate": "2025-12-31T23:59:59.999Z",
     "displayOptions": {
       "autoplay": true,
-      "controls": true,
+      "controls": false,
       "loop": true,
       "muted": true,
-      "showBadge": false,
-      "badgeText": "",
-      "badgeColor": "bg-purple-600"
-    },
-    "createdAt": "2025-05-12T22:06:33.203Z",
-    "updatedAt": "2025-05-12T22:06:33.203Z"
+      "showBadge": true,
+      "badgeText": "Destacado",
+      "badgeColor": "bg-blue-600"
+    }
   },
   {
-    "id": "1747087704050",
-    "title": "ofertas universo",
-    "description": "visitanos en universo",
-    "videoUrl": "/media/videos/1747087703088-gribcc9bqro.mp4",
-    "thumbnailUrl": "/media/thumbnails/1747087703891-ymalc45imy.jpg",
-    "isActive": true,
-    "startDate": "2025-05-12",
-    "endDate": "2025-05-17",
-    "displayOptions": {
-      "autoplay": true,
-      "controls": true,
-      "loop": true,
-      "muted": true,
-      "showBadge": false,
-      "badgeText": "",
-      "badgeColor": "bg-purple-600"
-    },
-    "createdAt": "2025-05-12T22:08:24.050Z",
-    "updatedAt": "2025-05-12T22:08:24.050Z"
-  },
-  {
-    "id": "universo01",
+    "id": "3",
     "title": "Universo 01",
-    "description": "Video promocional Universo 01",
-    "videoUrl": "/media/universo01.mp4",
+    "description": "Descubre las mejores ofertas en Universo",
+    "videoUrl": "/media/videos/universo01.mp4",
     "thumbnailUrl": "/placeholder.jpg",
     "isActive": true,
-    "startDate": "2025-05-13",
-    "endDate": "2025-12-31",
+    "startDate": "2025-01-01T00:00:00.000Z",
+    "endDate": "2025-12-31T23:59:59.999Z",
     "displayOptions": {
       "autoplay": true,
-      "controls": true,
+      "controls": false,
       "loop": true,
       "muted": true,
-      "showBadge": false,
-      "badgeText": "",
-      "badgeColor": "bg-purple-600"
-    },
-    "createdAt": "2025-05-13T00:00:00.000Z",
-    "updatedAt": "2025-05-13T00:00:00.000Z"
+      "showBadge": true,
+      "badgeText": "Especial",
+      "badgeColor": "bg-green-600"
+    }
   },
   {
-    "id": "universo02",
+    "id": "4",
     "title": "Universo 02",
-    "description": "Video promocional Universo 02",
-    "videoUrl": "/media/universo2.mp4",
+    "description": "Las mejores ofertas te esperan en Universo",
+    "videoUrl": "/media/videos/universo2.mp4",
     "thumbnailUrl": "/placeholder.jpg",
     "isActive": true,
-    "startDate": "2025-05-13",
-    "endDate": "2025-12-31",
+    "startDate": "2025-01-01T00:00:00.000Z",
+    "endDate": "2025-12-31T23:59:59.999Z",
     "displayOptions": {
       "autoplay": true,
-      "controls": true,
+      "controls": false,
       "loop": true,
       "muted": true,
-      "showBadge": false,
-      "badgeText": "",
+      "showBadge": true,
+      "badgeText": "Promoción",
       "badgeColor": "bg-purple-600"
-    },
-    "createdAt": "2025-05-13T00:00:00.000Z",
-    "updatedAt": "2025-05-13T00:00:00.000Z"
+    }
   }
 ]

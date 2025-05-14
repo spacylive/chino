@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 
-const PRODUCTS_PATH = path.join(process.cwd(), 'data', 'products.json')
+const PRODUCTS_PATH = path.join(process.cwd(), 'public', 'data', 'products.json')
 
 export async function GET() {
   try {
@@ -34,7 +34,9 @@ export async function POST(req: Request) {
       const file = await fs.readFile(PRODUCTS_PATH, 'utf-8')
       products = JSON.parse(file)
     } catch { products = [] }
-    const newProduct = { id: Date.now().toString(), name, price, image: `/images/${filename}` }
+    // Generar id único usando timestamp y nombre
+    const uniqueId = `${Date.now()}-${name.replace(/\s+/g, '').toLowerCase()}`
+    const newProduct = { id: uniqueId, name, price, image: `/images/${filename}` }
     products.push(newProduct)
     await fs.writeFile(PRODUCTS_PATH, JSON.stringify(products, null, 2))
     return NextResponse.json({ success: true, product: newProduct })

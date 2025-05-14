@@ -1,0 +1,44 @@
+[
+  {
+    "id": "universo01",
+    "title": "Universo 01",
+    "description": "Video promocional Universo 01",
+    "videoUrl": "/media/universo01.mp4",
+    "thumbnailUrl": "/placeholder.jpg",
+    "isActive": true,
+    "startDate": "2025-05-13",
+    "endDate": "2025-12-31",
+    "displayOptions": {
+      "autoplay": true,
+      "controls": true,
+      "loop": true,
+      "muted": true,
+      "showBadge": false,
+      "badgeText": "",
+      "badgeColor": "bg-purple-600"
+    },
+    "createdAt": "2025-05-13T00:00:00.000Z",
+    "updatedAt": "2025-05-13T00:00:00.000Z"
+  },
+  {
+    "id": "universo02",
+    "title": "Universo 02",
+    "description": "Video promocional Universo 02",
+    "videoUrl": "/media/universo2.mp4",
+    "thumbnailUrl": "/placeholder.jpg",
+    "isActive": true,
+    "startDate": "2025-05-13",
+    "endDate": "2025-12-31",
+    "displayOptions": {
+      "autoplay": true,
+      "controls": true,
+      "loop": true,
+      "muted": true,
+      "showBadge": false,
+      "badgeText": "",
+      "badgeColor": "bg-purple-600"
+    },
+    "createdAt": "2025-05-13T00:00:00.000Z",
+    "updatedAt": "2025-05-13T00:00:00.000Z"
+  }
+]

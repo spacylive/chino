@@ -1,0 +1,242 @@
+[
+  {
+    "id": "1747086664534-dulce",
+    "name": "dulce",
+    "price": "55000",
+    "image": "/images/1747086664533-oferta1.png"
+  },
+  {
+    "id": "1747086703826-salado",
+    "name": "salado",
+    "price": "85000",
+    "image": "/images/1747086703825-oferta2.png"
+  },
+  {
+    "id": "1747086728236-rico",
+    "name": "rico",
+    "price": "98000",
+    "image": "/images/1747086728235-oferta3.png"
+  },
+  {
+    "id": "1747086802754-delicioso",
+    "name": "delicioso",
+    "price": "86000",
+    "image": "/images/1747086802753-oferta5.png"
+  },
+  {
+    "id": "1747086848860-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "55000",
+    "image": "/images/1747086848859-Super5.jpg"
+  },
+  {
+    "id": "1747086882122-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "65000",
+    "image": "/images/1747086882121-Super5.jpg"
+  },
+  {
+    "id": "1747086920155-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "65000",
+    "image": "/images/1747086920154-super6.jpg"
+  },
+  {
+    "id": "1747086954933-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "98000",
+    "image": "/images/1747086954931-super1.jpg"
+  },
+  {
+    "id": "1747153858312-universoofertas",
+    "name": "universo ofertas",
+    "price": "55000",
+    "image": "/images/1747153858311-unnamed.webp"
+  },
+  {
+    "id": "1747153907449-universoofertas",
+    "name": "universo ofertas",
+    "price": "65000",
+    "image": "/images/1747153907448-unnamed-(2).webp"
+  },
+  {
+    "id": "1747153930869-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "45000",
+    "image": "/images/1747153930868-unnamed-(3).webp"
+  },
+  {
+    "id": "1747153950981-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "55000",
+    "image": "/images/1747153950980-unnamed-(4).webp"
+  },
+  {
+    "id": "1747153971107-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "67000",
+    "image": "/images/1747153971106-unnamed-(5).webp"
+  },
+  {
+    "id": "1747153993352-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "55000",
+    "image": "/images/1747153993350-unnamed-(6).webp"
+  },
+  {
+    "id": "1747154012037-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "40000",
+    "image": "/images/1747154012036-unnamed-(6).webp"
+  },
+  {
+    "id": "1747154031224-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "3000",
+    "image": "/images/1747154031223-unnamed-(6).webp"
+  },
+  {
+    "id": "1747154048049-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "4000",
+    "image": "/images/1747154048047-unnamed-(8).webp"
+  },
+  {
+    "id": "1747154068071-universoofertas",
+    "name": "universo ofertas",
+    "price": "2000",
+    "image": "/images/1747154068069-unnamed-(9).webp"
+  },
+  {
+    "id": "1747154085653-universoofertas",
+    "name": "universo ofertas",
+    "price": "7000",
+    "image": "/images/1747154085650-unnamed-(9).webp"
+  },
+  {
+    "id": "1747154105788-universoofertas",
+    "name": "universo ofertas",
+    "price": "8000",
+    "image": "/images/1747154105786-unnamed-(10).webp"
+  },
+  {
+    "id": "1747154133194-universoofertas",
+    "name": "universo ofertas",
+    "price": "9000",
+    "image": "/images/1747154133192-unnamed-(10).webp"
+  },
+  {
+    "id": "1747154159626-universoofertas",
+    "name": "universo ofertas",
+    "price": "12000",
+    "image": "/images/1747154159621-unnamed-(11).webp"
+  },
+  {
+    "id": "1747154178061-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "4000",
+    "image": "/images/1747154178059-unnamed-(12).webp"
+  },
+  {
+    "id": "1747154199613-universoofertas",
+    "name": "universo ofertas",
+    "price": "3400",
+    "image": "/images/1747154199612-unnamed-(12).webp"
+  },
+  {
+    "id": "1747154244267-universoofertas",
+    "name": "universo ofertas",
+    "price": "5000",
+    "image": "/images/1747154244266-unnamed-(227).webp"
+  },
+  {
+    "id": "1747154268215-universoofertas",
+    "name": "universo ofertas",
+    "price": "3400",
+    "image": "/images/1747154268210-unnamed-(17).webp"
+  },
+  {
+    "id": "1747154289825-universoofertas",
+    "name": "universo ofertas",
+    "price": "3400",
+    "image": "/images/1747154289823-unnamed-(27).webp"
+  },
+  {
+    "id": "1747154307968-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "6000",
+    "image": "/images/1747154307964-unnamed-(32).webp"
+  },
+  {
+    "id": "1747154328671-universoofertas",
+    "name": "universo ofertas",
+    "price": "3400",
+    "image": "/images/1747154328668-unnamed-(33).webp"
+  },
+  {
+    "id": "1747154349862-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "5700",
+    "image": "/images/1747154349860-unnamed-(47).webp"
+  },
+  {
+    "id": "1747154377118-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "2400",
+    "image": "/images/1747154377115-unnamed-(33).webp"
+  },
+  {
+    "id": "1747154395646-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "2300",
+    "image": "/images/1747154395643-unnamed-(67).webp"
+  },
+  {
+    "id": "1747154415397-universoofertas",
+    "name": "universo ofertas",
+    "price": "5600",
+    "image": "/images/1747154415395-unnamed-(73).webp"
+  },
+  {
+    "id": "1747154433216-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "7000",
+    "image": "/images/1747154433214-unnamed-(73).webp"
+  },
+  {
+    "id": "1747154452926-universoofertas",
+    "name": "universo ofertas",
+    "price": "5000",
+    "image": "/images/1747154452925-unnamed-(74).webp"
+  },
+  {
+    "id": "1747154467626-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "6000",
+    "image": "/images/1747154467624-unnamed-(75).webp"
+  },
+  {
+    "id": "1747154488222-universoofertas",
+    "name": "universo ofertas",
+    "price": "8000",
+    "image": "/images/1747154488218-unnamed-(75).webp"
+  },
+  {
+    "id": "1747154505120-universoofertas",
+    "name": "universo ofertas",
+    "price": "3400",
+    "image": "/images/1747154505118-unnamed-(117).webp"
+  },
+  {
+    "id": "1747154522149-mejorenuniverso",
+    "name": "mejor en universo",
+    "price": "4800",
+    "image": "/images/1747154522147-unnamed-(127).webp"
+  },
+  {
+    "id": "1747154539600-universoofertas",
+    "name": "universo ofertas",
+    "price": "6700",
+    "image": "/images/1747154539599-unnamed-(227).webp"
+  }
+]

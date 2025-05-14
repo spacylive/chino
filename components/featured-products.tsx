@@ -87,14 +87,19 @@ export default function FeaturedProducts() {
             className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
           >
             {products.map(product => (
-              <motion.div key={product.id} variants={item} whileHover={{ scale: 1.04 }}>
-                <Card className="group overflow-hidden rounded-2xl shadow-lg border-0 bg-white transition-all duration-300 hover:shadow-2xl">
+              <motion.div
+                key={product.id}
+                variants={item}
+                whileHover={{ scale: 1.08 }}
+                className="transition-transform duration-300"
+              >
+                <Card className="group overflow-hidden rounded-2xl shadow-lg border-0 bg-white transition-all duration-300 hover:shadow-2xl hover:ring-4 hover:ring-red-200">
                   <div className="relative">
-                    <div className="aspect-square overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
+                    <div className="aspect-square overflow-visible rounded-2xl border border-gray-100 bg-gray-50 transition-all duration-500">
                       <img
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}
-                        className="h-56 w-56 mx-auto object-cover rounded-2xl shadow-md border border-gray-100 bg-gray-50 transition-transform duration-500 group-hover:scale-110 group-hover:brightness-95"
+                        className="h-56 w-56 mx-auto object-cover rounded-2xl shadow-lg border-2 border-white group-hover:scale-110 group-hover:brightness-105 group-hover:shadow-2xl group-hover:border-red-400 transition-all duration-500 bg-gradient-to-br from-gray-100 to-gray-300"
                         loading="lazy"
                       />
                     </div>

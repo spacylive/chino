@@ -1,0 +1,107 @@
+[
+  {
+    "id": "1747086486214",
+    "title": "ofertas universo",
+    "description": "hablar con el cajero",
+    "videoUrl": "/media/videos/1747086485625-2zf5r9d6z9r.mp4",
+    "thumbnailUrl": "/media/thumbnails/1747086486103-zo0f96ffbdg.jpg",
+    "isActive": true,
+    "startDate": "2025-05-12",
+    "endDate": "2025-05-23",
+    "displayOptions": {
+      "autoplay": true,
+      "controls": true,
+      "loop": true,
+      "muted": true,
+      "showBadge": false,
+      "badgeText": "",
+      "badgeColor": "bg-purple-600"
+    },
+    "createdAt": "2025-05-12T21:48:06.214Z",
+    "updatedAt": "2025-05-12T21:48:06.214Z"
+  },
+  {
+    "id": "1747087593203",
+    "title": "ofertas universo",
+    "description": "veni a universo",
+    "videoUrl": "/media/videos/1747087592108-pj56z8ykh.mp4",
+    "thumbnailUrl": "/media/thumbnails/1747087593042-s9rvyvqwaj9.jpg",
+    "isActive": true,
+    "startDate": "2025-05-12",
+    "endDate": "2025-05-17",
+    "displayOptions": {
+      "autoplay": true,
+      "controls": true,
+      "loop": true,
+      "muted": true,
+      "showBadge": false,
+      "badgeText": "",
+      "badgeColor": "bg-purple-600"
+    },
+    "createdAt": "2025-05-12T22:06:33.203Z",
+    "updatedAt": "2025-05-12T22:06:33.203Z"
+  },
+  {
+    "id": "1747087704050",
+    "title": "ofertas universo",
+    "description": "visitanos en universo",
+    "videoUrl": "/media/videos/1747087703088-gribcc9bqro.mp4",
+    "thumbnailUrl": "/media/thumbnails/1747087703891-ymalc45imy.jpg",
+    "isActive": true,
+    "startDate": "2025-05-12",
+    "endDate": "2025-05-17",
+    "displayOptions": {
+      "autoplay": true,
+      "controls": true,
+      "loop": true,
+      "muted": true,
+      "showBadge": false,
+      "badgeText": "",
+      "badgeColor": "bg-purple-600"
+    },
+    "createdAt": "2025-05-12T22:08:24.050Z",
+    "updatedAt": "2025-05-12T22:08:24.050Z"
+  },
+  {
+    "id": "universo01",
+    "title": "Universo 01",
+    "description": "Video promocional Universo 01",
+    "videoUrl": "/media/videos/universo01.mp4",
+    "thumbnailUrl": "/placeholder.jpg",
+    "isActive": true,
+    "startDate": "2025-05-13",
+    "endDate": "2025-12-31",
+    "displayOptions": {
+      "autoplay": true,
+      "controls": true,
+      "loop": true,
+      "muted": true,
+      "showBadge": false,
+      "badgeText": "",
+      "badgeColor": "bg-purple-600"
+    },
+    "createdAt": "2025-05-13T00:00:00.000Z",
+    "updatedAt": "2025-05-13T00:00:00.000Z"
+  },
+  {
+    "id": "universo02",
+    "title": "Universo 02",
+    "description": "Video promocional Universo 02",
+    "videoUrl": "/media/videos/universo2.mp4",
+    "thumbnailUrl": "/placeholder.jpg",
+    "isActive": true,
+    "startDate": "2025-05-13",
+    "endDate": "2025-12-31",
+    "displayOptions": {
+      "autoplay": true,
+      "controls": true,
+      "loop": true,
+      "muted": true,
+      "showBadge": false,
+      "badgeText": "",
+      "badgeColor": "bg-purple-600"
+    },
+    "createdAt": "2025-05-13T00:00:00.000Z",
+    "updatedAt": "2025-05-13T00:00:00.000Z"
+  }
+]
